@@ -1,0 +1,204 @@
+/**
+ * OpenBlogFlow Admin Styles
+ */
+
+.openblogflow-wrap {
+	max-width: 960px;
+}
+
+.obf-nav-tabs {
+	margin-bottom: 24px;
+}
+
+.obf-tab-content {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-top: none;
+	padding: 24px;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.obf-settings-form .form-table th {
+	width: 200px;
+}
+
+.obf-token-input {
+	font-family: Consolas, Monaco, monospace;
+}
+
+.obf-token-status {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-top: 8px;
+}
+
+.obf-token-set {
+	color: #00a32a;
+}
+
+.obf-token-missing {
+	color: #dba617;
+}
+
+.obf-info-box {
+	margin-top: 24px;
+	padding: 16px 20px;
+	background: #f0f6fc;
+	border-left: 4px solid #2271b1;
+	border-radius: 0 4px 4px 0;
+}
+
+.obf-info-box h3 {
+	margin-top: 0;
+}
+
+.obf-info-box ol,
+.obf-info-box ul {
+	margin-bottom: 0;
+}
+
+.obf-generated-notice {
+	margin-top: 16px;
+	padding: 12px 16px;
+}
+
+.obf-generated-token {
+	display: block;
+	padding: 12px;
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	font-size: 14px;
+	word-break: break-all;
+	margin-top: 8px;
+}
+
+/* Documentation tab */
+.obf-docs .obf-doc-section {
+	margin-bottom: 40px;
+	padding-bottom: 32px;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.obf-docs .obf-doc-section:last-child {
+	border-bottom: none;
+	margin-bottom: 0;
+	padding-bottom: 0;
+}
+
+.obf-docs h2 {
+	margin-top: 0;
+	padding-top: 0;
+	font-size: 1.4em;
+}
+
+.obf-docs h3 {
+	margin-top: 24px;
+	font-size: 1.1em;
+}
+
+.obf-code-block {
+	background: #1d2327;
+	color: #f0f0f1;
+	padding: 16px 20px;
+	border-radius: 6px;
+	overflow-x: auto;
+	font-size: 13px;
+	line-height: 1.6;
+	margin: 12px 0 20px;
+}
+
+.obf-code-block code {
+	background: transparent;
+	color: inherit;
+	padding: 0;
+	font-family: Consolas, Monaco, "Courier New", monospace;
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.obf-doc-table {
+	margin: 12px 0 20px;
+}
+
+.obf-doc-table th {
+	font-weight: 600;
+}
+
+.obf-doc-table code {
+	font-size: 12px;
+}
+
+/* Page footer */
+.obf-page-footer {
+	margin-top: 24px;
+	padding: 20px 24px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 0 0 4px 4px;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+	text-align: center;
+}
+
+.obf-footer-inner {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+}
+
+.obf-footer-brand {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 14px;
+	background: #1d2327;
+	border-radius: 6px;
+	text-decoration: none;
+	transition: background 0.15s ease;
+}
+
+.obf-footer-brand:hover,
+.obf-footer-brand:focus {
+	background: #2c3338;
+	box-shadow: none;
+}
+
+.obf-footer-developed {
+	color: #c3c4c7;
+	font-size: 13px;
+	font-weight: 500;
+	letter-spacing: 0.02em;
+}
+
+.obf-footer-logo {
+	display: block;
+	height: 28px;
+	width: auto;
+}
+
+.obf-footer-copyright {
+	margin: 0;
+	color: #646970;
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.obf-footer-copyright a {
+	color: #2271b1;
+	text-decoration: none;
+}
+
+.obf-footer-copyright a:hover,
+.obf-footer-copyright a:focus {
+	color: #135e96;
+	text-decoration: underline;
+}
+
+.obf-footer-version {
+	margin: 0;
+	color: #8c8f94;
+	font-size: 12px;
+	font-family: Consolas, Monaco, monospace;
+}
