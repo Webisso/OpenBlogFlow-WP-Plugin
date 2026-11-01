@@ -22,7 +22,6 @@ class OpenBlogFlow_Post_Handler {
 		$title   = sanitize_text_field( $request->get_param( 'title' ) );
 		$content = $request->get_param( 'content' );
 		$excerpt = $request->get_param( 'excerpt' );
-		$status  = $request->get_param( 'status' );
 
 		if ( empty( $title ) ) {
 			return new WP_Error(
@@ -42,8 +41,7 @@ class OpenBlogFlow_Post_Handler {
 
 		$content = self::strip_scripts_from_content( $content );
 
-		$allowed_statuses = array( 'publish', 'draft', 'pending', 'private' );
-		$status           = in_array( $status, $allowed_statuses, true ) ? $status : 'draft';
+		$status = OpenBlogFlow_Plugin_Settings::resolve_post_status( $request );
 
 		$post_data = array(
 			'post_title'   => $title,
@@ -84,7 +82,7 @@ class OpenBlogFlow_Post_Handler {
 			);
 		}
 
-		self::assign_categories( $post_id, $request->get_param( 'categories' ) );
+		self::assign_categories( $post_id, OpenBlogFlow_Plugin_Settings::resolve_categories( $request ) );
 		self::assign_tags( $post_id, self::merge_tag_inputs( $request ) );
 
 		OpenBlogFlow_Yoast_SEO_Handler::apply_to_post( $post_id, $request );

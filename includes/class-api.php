@@ -249,7 +249,6 @@ class OpenBlogFlow_API {
 				'sanitize_callback' => 'sanitize_textarea_field',
 			),
 			'status'         => array(
-				'default'           => 'draft',
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 			),

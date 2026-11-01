@@ -57,6 +57,26 @@ class OpenBlogFlow_Admin {
 				'default'           => '',
 			)
 		);
+
+		register_setting(
+			'openblogflow_settings_group',
+			OpenBlogFlow_Plugin_Settings::OPTION_DEFAULT_STATUS,
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => array( 'OpenBlogFlow_Plugin_Settings', 'sanitize_default_status' ),
+				'default'           => '',
+			)
+		);
+
+		register_setting(
+			'openblogflow_settings_group',
+			OpenBlogFlow_Plugin_Settings::OPTION_DEFAULT_CATEGORY,
+			array(
+				'type'              => 'integer',
+				'sanitize_callback' => array( 'OpenBlogFlow_Plugin_Settings', 'sanitize_default_category' ),
+				'default'           => 0,
+			)
+		);
 	}
 
 	/**
@@ -160,12 +180,16 @@ class OpenBlogFlow_Admin {
 	 * @param string $token Current bearer token.
 	 */
 	private static function render_settings_tab( $token ) {
-		$generated = isset( $_GET['obf_generated'] ) ? sanitize_text_field( wp_unslash( $_GET['obf_generated'] ) ) : '';
+		$generated          = isset( $_GET['obf_generated'] ) ? sanitize_text_field( wp_unslash( $_GET['obf_generated'] ) ) : '';
+		$default_status     = get_option( OpenBlogFlow_Plugin_Settings::OPTION_DEFAULT_STATUS, '' );
+		$default_category   = (int) get_option( OpenBlogFlow_Plugin_Settings::OPTION_DEFAULT_CATEGORY, 0 );
+		$status_choices     = OpenBlogFlow_Plugin_Settings::get_post_status_choices();
 		?>
 		<div class="obf-tab-content">
 			<form method="post" action="options.php" class="obf-settings-form">
 				<?php settings_fields( 'openblogflow_settings_group' ); ?>
 
+				<h2 class="title"><?php esc_html_e( 'API authentication', 'openblogflow' ); ?></h2>
 				<table class="form-table" role="presentation">
 					<tr>
 						<th scope="row">
@@ -201,8 +225,64 @@ class OpenBlogFlow_Admin {
 					</tr>
 				</table>
 
+				<h2 class="title"><?php esc_html_e( 'API post defaults', 'openblogflow' ); ?></h2>
+				<p class="description">
+					<?php esc_html_e( 'Used when a POST /posts request omits status or categories. Request body values always take priority.', 'openblogflow' ); ?>
+				</p>
+				<table class="form-table" role="presentation">
+					<tr>
+						<th scope="row">
+							<label for="openblogflow_default_post_status">
+								<?php esc_html_e( 'Default post status', 'openblogflow' ); ?>
+							</label>
+						</th>
+						<td>
+							<select
+								id="openblogflow_default_post_status"
+								name="<?php echo esc_attr( OpenBlogFlow_Plugin_Settings::OPTION_DEFAULT_STATUS ); ?>"
+							>
+								<?php foreach ( $status_choices as $value => $label ) : ?>
+									<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $default_status, $value ); ?>>
+										<?php echo esc_html( $label ); ?>
+									</option>
+								<?php endforeach; ?>
+							</select>
+							<p class="description">
+								<?php esc_html_e( 'If not set here and omitted from the API, new posts are saved as draft.', 'openblogflow' ); ?>
+							</p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							<label for="openblogflow_default_category_id">
+								<?php esc_html_e( 'Default category', 'openblogflow' ); ?>
+							</label>
+						</th>
+						<td>
+							<?php
+							wp_dropdown_categories(
+								array(
+									'show_option_none'  => __( '— WordPress default category —', 'openblogflow' ),
+									'option_none_value' => '0',
+									'selected'          => $default_category,
+									'name'              => OpenBlogFlow_Plugin_Settings::OPTION_DEFAULT_CATEGORY,
+									'id'                => 'openblogflow_default_category_id',
+									'hide_empty'        => 0,
+									'orderby'           => 'name',
+									'taxonomy'          => 'category',
+									'hierarchical'      => true,
+								)
+							);
+							?>
+							<p class="description">
+								<?php esc_html_e( 'If not set here and omitted from the API, WordPress assigns its site default category (usually Uncategorized).', 'openblogflow' ); ?>
+							</p>
+						</td>
+					</tr>
+				</table>
+
 				<p class="submit">
-					<?php submit_button( __( 'Save Token', 'openblogflow' ), 'primary', 'submit', false ); ?>
+					<?php submit_button( __( 'Save Settings', 'openblogflow' ), 'primary', 'submit', false ); ?>
 					<a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=' . self::PAGE_SLUG . '&obf_action=generate_token' ), 'obf_generate_token' ) ); ?>"
 					   class="button button-secondary">
 						<?php esc_html_e( 'Generate Secure Token', 'openblogflow' ); ?>
@@ -222,7 +302,8 @@ class OpenBlogFlow_Admin {
 			<div class="obf-info-box">
 				<h3><?php esc_html_e( 'Quick Start', 'openblogflow' ); ?></h3>
 				<ol>
-					<li><?php esc_html_e( 'Generate or enter a secure Bearer token and click Save Token.', 'openblogflow' ); ?></li>
+					<li><?php esc_html_e( 'Generate or enter a secure Bearer token and save settings.', 'openblogflow' ); ?></li>
+					<li><?php esc_html_e( 'Optionally set default post status and category for API posts that omit those fields.', 'openblogflow' ); ?></li>
 					<li><?php esc_html_e( 'Send HTTP requests to your REST API URLs (index.php?rest_route=/openblogflow/v1/…), not to admin-ajax.php or plugin PHP files.', 'openblogflow' ); ?></li>
 					<li><?php esc_html_e( 'Include Authorization: Bearer YOUR_TOKEN on every API request.', 'openblogflow' ); ?></li>
 					<li><?php esc_html_e( 'Open the API Documentation tab for full endpoint URLs, request bodies, and response examples.', 'openblogflow' ); ?></li>
@@ -524,8 +605,8 @@ RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]</code></pre>
 						<tr><td><code>title</code></td><td>string</td><td><?php esc_html_e( 'Yes', 'openblogflow' ); ?></td><td><?php esc_html_e( 'Post title.', 'openblogflow' ); ?></td></tr>
 						<tr><td><code>content</code></td><td>string</td><td><?php esc_html_e( 'Yes', 'openblogflow' ); ?></td><td><?php esc_html_e( 'HTML content. Inline &lt;img&gt; URLs are imported to media library. &lt;script&gt; and &lt;style&gt; blocks (e.g. JSON-LD) are removed before save.', 'openblogflow' ); ?></td></tr>
 						<tr><td><code>excerpt</code></td><td>string</td><td><?php esc_html_e( 'No', 'openblogflow' ); ?></td><td><?php esc_html_e( 'Short summary.', 'openblogflow' ); ?></td></tr>
-						<tr><td><code>status</code></td><td>string</td><td><?php esc_html_e( 'No', 'openblogflow' ); ?></td><td><?php esc_html_e( 'publish, draft, pending, or private. Default: draft.', 'openblogflow' ); ?></td></tr>
-						<tr><td><code>categories</code></td><td>array</td><td><?php esc_html_e( 'No', 'openblogflow' ); ?></td><td><?php esc_html_e( 'Category IDs or names. New names are created automatically.', 'openblogflow' ); ?></td></tr>
+						<tr><td><code>status</code></td><td>string</td><td><?php esc_html_e( 'No', 'openblogflow' ); ?></td><td><?php esc_html_e( 'publish, draft, pending, or private. If omitted: plugin default from Settings, otherwise draft.', 'openblogflow' ); ?></td></tr>
+						<tr><td><code>categories</code></td><td>array</td><td><?php esc_html_e( 'No', 'openblogflow' ); ?></td><td><?php esc_html_e( 'Category IDs or names. New names are created automatically. If omitted: plugin default category from Settings, otherwise WordPress default.', 'openblogflow' ); ?></td></tr>
 						<tr><td><code>tags</code></td><td>array</td><td><?php esc_html_e( 'No', 'openblogflow' ); ?></td><td><?php esc_html_e( 'Tag IDs or names.', 'openblogflow' ); ?></td></tr>
 						<tr><td><code>featured_image</code></td><td>string</td><td><?php esc_html_e( 'No', 'openblogflow' ); ?></td><td><?php esc_html_e( 'Image URL or base64 data URI. Saved as post thumbnail. Alias: main_image.', 'openblogflow' ); ?></td></tr>
 						<tr><td><code>slug</code> / <code>seoUrl</code></td><td>string</td><td><?php esc_html_e( 'No', 'openblogflow' ); ?></td><td><?php esc_html_e( 'Custom post slug (URL path). seoUrl is checked first when both are sent.', 'openblogflow' ); ?></td></tr>

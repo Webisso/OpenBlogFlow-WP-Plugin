@@ -146,6 +146,10 @@ Before saving post HTML, OpenBlogFlow removes entire `<script>` and `<style>` bl
 
 Extra fields such as `site_id`, `calendar_entry_id`, and `language` are ignored by the plugin.
 
+## Admin defaults (POST /posts)
+
+On **OpenBlogFlow → Settings**, you can set a default **post status** and **category** used when the API request omits `status` or `categories`. Values in the JSON body always override these settings. If a setting is left unset, behavior falls back to WordPress defaults (draft status and the site’s default category).
+
 ## Project Structure
 
 ```
@@ -157,6 +161,7 @@ openblogflow/
 │   ├── class-api.php         # REST route registration
 │   ├── class-post-handler.php # Post CRUD logic
 │   ├── class-request-params.php # camelCase / snake_case field aliases
+│   ├── class-plugin-settings.php # Admin defaults for status and category
 │   ├── class-media-handler.php # Media library uploads
 │   └── class-admin.php       # Admin settings & docs UI
 ├── admin/
