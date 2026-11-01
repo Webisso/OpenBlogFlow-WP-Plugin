@@ -262,7 +262,14 @@ class OpenBlogFlow_API {
 			'featured_image' => array(
 				'type' => 'string',
 			),
+			'main_image'     => array(
+				'type' => 'string',
+			),
 			'seoUrl'         => array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_title',
+			),
+			'slug'           => array(
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_title',
 			),
@@ -270,11 +277,24 @@ class OpenBlogFlow_API {
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 			),
+			'meta_title'     => array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			),
 			'metaDescription' => array(
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_textarea_field',
 			),
+			'meta_description' => array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_textarea_field',
+			),
 			'metaKeywords'   => array(
+				'validate_callback' => function ( $value ) {
+					return null === $value || is_string( $value ) || is_array( $value );
+				},
+			),
+			'meta_keywords'  => array(
 				'validate_callback' => function ( $value ) {
 					return null === $value || is_string( $value ) || is_array( $value );
 				},

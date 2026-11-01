@@ -522,18 +522,26 @@ RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]</code></pre>
 					</thead>
 					<tbody>
 						<tr><td><code>title</code></td><td>string</td><td><?php esc_html_e( 'Yes', 'openblogflow' ); ?></td><td><?php esc_html_e( 'Post title.', 'openblogflow' ); ?></td></tr>
-						<tr><td><code>content</code></td><td>string</td><td><?php esc_html_e( 'Yes', 'openblogflow' ); ?></td><td><?php esc_html_e( 'HTML content. Inline &lt;img&gt; URLs are imported to media library.', 'openblogflow' ); ?></td></tr>
+						<tr><td><code>content</code></td><td>string</td><td><?php esc_html_e( 'Yes', 'openblogflow' ); ?></td><td><?php esc_html_e( 'HTML content. Inline &lt;img&gt; URLs are imported to media library. &lt;script&gt; and &lt;style&gt; blocks (e.g. JSON-LD) are removed before save.', 'openblogflow' ); ?></td></tr>
 						<tr><td><code>excerpt</code></td><td>string</td><td><?php esc_html_e( 'No', 'openblogflow' ); ?></td><td><?php esc_html_e( 'Short summary.', 'openblogflow' ); ?></td></tr>
 						<tr><td><code>status</code></td><td>string</td><td><?php esc_html_e( 'No', 'openblogflow' ); ?></td><td><?php esc_html_e( 'publish, draft, pending, or private. Default: draft.', 'openblogflow' ); ?></td></tr>
 						<tr><td><code>categories</code></td><td>array</td><td><?php esc_html_e( 'No', 'openblogflow' ); ?></td><td><?php esc_html_e( 'Category IDs or names. New names are created automatically.', 'openblogflow' ); ?></td></tr>
 						<tr><td><code>tags</code></td><td>array</td><td><?php esc_html_e( 'No', 'openblogflow' ); ?></td><td><?php esc_html_e( 'Tag IDs or names.', 'openblogflow' ); ?></td></tr>
-						<tr><td><code>featured_image</code></td><td>string</td><td><?php esc_html_e( 'No', 'openblogflow' ); ?></td><td><?php esc_html_e( 'Image URL or base64 data URI. Saved as post thumbnail.', 'openblogflow' ); ?></td></tr>
+						<tr><td><code>featured_image</code></td><td>string</td><td><?php esc_html_e( 'No', 'openblogflow' ); ?></td><td><?php esc_html_e( 'Image URL or base64 data URI. Saved as post thumbnail. Alias: main_image.', 'openblogflow' ); ?></td></tr>
+						<tr><td><code>slug</code> / <code>seoUrl</code></td><td>string</td><td><?php esc_html_e( 'No', 'openblogflow' ); ?></td><td><?php esc_html_e( 'Custom post slug (URL path). seoUrl is checked first when both are sent.', 'openblogflow' ); ?></td></tr>
 					</tbody>
 				</table>
 
-				<?php if ( OpenBlogFlow_Yoast_SEO_Handler::is_active() ) : ?>
-				<h3><?php esc_html_e( 'Yoast SEO Fields (optional)', 'openblogflow' ); ?></h3>
-				<p><?php esc_html_e( 'Available when Yoast SEO is active. metaKeywords is also assigned as WordPress post tags.', 'openblogflow' ); ?></p>
+				<h3><?php esc_html_e( 'SEO Fields (optional)', 'openblogflow' ); ?></h3>
+				<p>
+					<?php
+					if ( OpenBlogFlow_Yoast_SEO_Handler::is_active() ) {
+						esc_html_e( 'Saved to Yoast SEO when active. metaKeywords / meta_keywords are also assigned as WordPress post tags.', 'openblogflow' );
+					} else {
+						esc_html_e( 'Stored as post meta when Yoast SEO is not active. Keywords are still assigned as WordPress post tags.', 'openblogflow' );
+					}
+					?>
+				</p>
 				<table class="widefat obf-doc-table">
 					<thead>
 						<tr>
@@ -544,13 +552,11 @@ RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]</code></pre>
 						</tr>
 					</thead>
 					<tbody>
-						<tr><td><code>seoUrl</code></td><td>string</td><td><?php esc_html_e( 'No', 'openblogflow' ); ?></td><td><?php esc_html_e( 'Custom post slug (URL path).', 'openblogflow' ); ?></td></tr>
-						<tr><td><code>metaTitle</code></td><td>string</td><td><?php esc_html_e( 'No', 'openblogflow' ); ?></td><td><?php esc_html_e( 'Yoast SEO title.', 'openblogflow' ); ?></td></tr>
-						<tr><td><code>metaDescription</code></td><td>string</td><td><?php esc_html_e( 'No', 'openblogflow' ); ?></td><td><?php esc_html_e( 'Yoast meta description.', 'openblogflow' ); ?></td></tr>
-						<tr><td><code>metaKeywords</code></td><td>string or array</td><td><?php esc_html_e( 'No', 'openblogflow' ); ?></td><td><?php esc_html_e( 'Comma-separated string or array. Saved as Yoast focus keyword(s) and WordPress tags.', 'openblogflow' ); ?></td></tr>
+						<tr><td><code>metaTitle</code> / <code>meta_title</code></td><td>string</td><td><?php esc_html_e( 'No', 'openblogflow' ); ?></td><td><?php esc_html_e( 'SEO title.', 'openblogflow' ); ?></td></tr>
+						<tr><td><code>metaDescription</code> / <code>meta_description</code></td><td>string</td><td><?php esc_html_e( 'No', 'openblogflow' ); ?></td><td><?php esc_html_e( 'Meta description.', 'openblogflow' ); ?></td></tr>
+						<tr><td><code>metaKeywords</code> / <code>meta_keywords</code></td><td>string or array</td><td><?php esc_html_e( 'No', 'openblogflow' ); ?></td><td><?php esc_html_e( 'Comma-separated string or array. Also used as WordPress tags.', 'openblogflow' ); ?></td></tr>
 					</tbody>
 				</table>
-				<?php endif; ?>
 
 				<h3><?php esc_html_e( 'Example Request (cURL)', 'openblogflow' ); ?></h3>
 				<pre class="obf-code-block"><code>curl -X POST "<?php echo esc_html( self::get_api_endpoint_url( '/posts' ) ); ?>" \

@@ -130,6 +130,22 @@ When creating a post:
 2. **`content` inline images** — Every external `<img src="...">` in the HTML content is downloaded, stored in the media library, and the `src` attribute is replaced with the local WordPress URL.
 3. **Local images** — Images already hosted on your WordPress site are not re-imported.
 
+## Content sanitization
+
+Before saving post HTML, OpenBlogFlow removes entire `<script>` and `<style>` blocks (including JSON-LD schema embedded in content) so they are not rendered as visible text after WordPress KSES filtering.
+
+## Field aliases (OpenBlogFlow payloads)
+
+| Primary | Alias |
+|---------|--------|
+| `featured_image` | `main_image` |
+| `seoUrl` | `slug` (seoUrl wins if both are sent) |
+| `metaTitle` | `meta_title` |
+| `metaDescription` | `meta_description` |
+| `metaKeywords` | `meta_keywords` |
+
+Extra fields such as `site_id`, `calendar_entry_id`, and `language` are ignored by the plugin.
+
 ## Project Structure
 
 ```
@@ -140,6 +156,7 @@ openblogflow/
 │   ├── class-auth.php        # Bearer token authentication
 │   ├── class-api.php         # REST route registration
 │   ├── class-post-handler.php # Post CRUD logic
+│   ├── class-request-params.php # camelCase / snake_case field aliases
 │   ├── class-media-handler.php # Media library uploads
 │   └── class-admin.php       # Admin settings & docs UI
 ├── admin/

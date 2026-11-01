@@ -60,24 +60,36 @@ class OpenBlogFlow_Yoast_SEO_Handler {
 	 * @param WP_REST_Request $request REST request.
 	 */
 	public static function apply_to_post( $post_id, WP_REST_Request $request ) {
-		if ( ! self::is_active() ) {
+		$meta_title = OpenBlogFlow_Request_Params::get_meta_title( $request );
+		$meta_desc  = OpenBlogFlow_Request_Params::get_meta_description( $request );
+		$keywords   = self::normalize_keywords( OpenBlogFlow_Request_Params::get_meta_keywords( $request ) );
+
+		if ( self::is_active() ) {
+			if ( ! empty( $meta_title ) ) {
+				update_post_meta( $post_id, '_yoast_wpseo_title', sanitize_text_field( $meta_title ) );
+			}
+
+			if ( ! empty( $meta_desc ) ) {
+				update_post_meta( $post_id, '_yoast_wpseo_metadesc', sanitize_textarea_field( $meta_desc ) );
+			}
+
+			if ( ! empty( $keywords ) ) {
+				self::save_yoast_keywords( $post_id, $keywords );
+			}
+
 			return;
 		}
 
-		$meta_title = $request->get_param( 'metaTitle' );
-		$meta_desc  = $request->get_param( 'metaDescription' );
-		$keywords   = self::normalize_keywords( $request->get_param( 'metaKeywords' ) );
-
 		if ( ! empty( $meta_title ) ) {
-			update_post_meta( $post_id, '_yoast_wpseo_title', sanitize_text_field( $meta_title ) );
+			update_post_meta( $post_id, '_openblogflow_meta_title', sanitize_text_field( $meta_title ) );
 		}
 
 		if ( ! empty( $meta_desc ) ) {
-			update_post_meta( $post_id, '_yoast_wpseo_metadesc', sanitize_textarea_field( $meta_desc ) );
+			update_post_meta( $post_id, '_openblogflow_meta_description', sanitize_textarea_field( $meta_desc ) );
 		}
 
 		if ( ! empty( $keywords ) ) {
-			self::save_yoast_keywords( $post_id, $keywords );
+			update_post_meta( $post_id, '_openblogflow_meta_keywords', implode( ', ', $keywords ) );
 		}
 	}
 
@@ -121,13 +133,22 @@ class OpenBlogFlow_Yoast_SEO_Handler {
 	 * @return array
 	 */
 	public static function format_for_response( WP_Post $post ) {
-		$keywords = self::get_stored_keywords( $post->ID );
+		if ( self::is_active() ) {
+			$keywords = self::get_stored_keywords( $post->ID );
+
+			return array(
+				'seoUrl'          => $post->post_name,
+				'metaTitle'       => (string) get_post_meta( $post->ID, '_yoast_wpseo_title', true ),
+				'metaDescription' => (string) get_post_meta( $post->ID, '_yoast_wpseo_metadesc', true ),
+				'metaKeywords'    => implode( ', ', $keywords ),
+			);
+		}
 
 		return array(
 			'seoUrl'          => $post->post_name,
-			'metaTitle'       => (string) get_post_meta( $post->ID, '_yoast_wpseo_title', true ),
-			'metaDescription' => (string) get_post_meta( $post->ID, '_yoast_wpseo_metadesc', true ),
-			'metaKeywords'    => implode( ', ', $keywords ),
+			'metaTitle'       => (string) get_post_meta( $post->ID, '_openblogflow_meta_title', true ),
+			'metaDescription' => (string) get_post_meta( $post->ID, '_openblogflow_meta_description', true ),
+			'metaKeywords'    => (string) get_post_meta( $post->ID, '_openblogflow_meta_keywords', true ),
 		);
 	}
 

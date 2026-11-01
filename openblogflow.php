@@ -3,7 +3,7 @@
  * Plugin Name:       OpenBlogFlow
  * Plugin URI:        https://github.com/openblogflow/openblogflow-wp-plugin
  * Description:       REST API for creating and retrieving blog posts, categories, and tags with Bearer token authentication.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            OpenBlogFlow
@@ -24,6 +24,7 @@ define( 'OPENBLOGFLOW_API_NAMESPACE', 'openblogflow/v1' );
 
 require_once OPENBLOGFLOW_PLUGIN_DIR . 'includes/class-auth.php';
 require_once OPENBLOGFLOW_PLUGIN_DIR . 'includes/class-media-handler.php';
+require_once OPENBLOGFLOW_PLUGIN_DIR . 'includes/class-request-params.php';
 require_once OPENBLOGFLOW_PLUGIN_DIR . 'includes/class-yoast-seo-handler.php';
 require_once OPENBLOGFLOW_PLUGIN_DIR . 'includes/class-post-handler.php';
 require_once OPENBLOGFLOW_PLUGIN_DIR . 'includes/class-api.php';

@@ -40,6 +40,8 @@ class OpenBlogFlow_Post_Handler {
 			);
 		}
 
+		$content = self::strip_scripts_from_content( $content );
+
 		$allowed_statuses = array( 'publish', 'draft', 'pending', 'private' );
 		$status           = in_array( $status, $allowed_statuses, true ) ? $status : 'draft';
 
@@ -55,7 +57,7 @@ class OpenBlogFlow_Post_Handler {
 			$post_data['post_excerpt'] = sanitize_textarea_field( $excerpt );
 		}
 
-		$seo_url = $request->get_param( 'seoUrl' );
+		$seo_url = OpenBlogFlow_Request_Params::get_post_slug( $request );
 		if ( ! empty( $seo_url ) ) {
 			$post_data['post_name'] = sanitize_title( $seo_url );
 		}
@@ -87,7 +89,7 @@ class OpenBlogFlow_Post_Handler {
 
 		OpenBlogFlow_Yoast_SEO_Handler::apply_to_post( $post_id, $request );
 
-		$featured_image = $request->get_param( 'featured_image' );
+		$featured_image = OpenBlogFlow_Request_Params::get_featured_image( $request );
 
 		if ( ! empty( $featured_image ) ) {
 			$thumbnail_result = self::set_featured_image( $post_id, $featured_image );
@@ -230,9 +232,7 @@ class OpenBlogFlow_Post_Handler {
 			),
 		);
 
-		if ( OpenBlogFlow_Yoast_SEO_Handler::is_active() ) {
-			$formatted['seo'] = OpenBlogFlow_Yoast_SEO_Handler::format_for_response( $post );
-		}
+		$formatted['seo'] = OpenBlogFlow_Yoast_SEO_Handler::format_for_response( $post );
 
 		return $formatted;
 	}
@@ -245,7 +245,9 @@ class OpenBlogFlow_Post_Handler {
 	 */
 	private static function merge_tag_inputs( WP_REST_Request $request ) {
 		$tags       = $request->get_param( 'tags' );
-		$keywords   = OpenBlogFlow_Yoast_SEO_Handler::normalize_keywords( $request->get_param( 'metaKeywords' ) );
+		$keywords   = OpenBlogFlow_Yoast_SEO_Handler::normalize_keywords(
+			OpenBlogFlow_Request_Params::get_meta_keywords( $request )
+		);
 		$merged     = array();
 
 		if ( ! empty( $tags ) && is_array( $tags ) ) {
@@ -348,5 +350,30 @@ class OpenBlogFlow_Post_Handler {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Remove script/style tags and their contents before KSES sanitization.
+	 *
+	 * wp_kses_post() strips disallowed tags but can leave inner text (e.g. JSON-LD)
+	 * visible in post content; remove these elements entirely first.
+	 *
+	 * @param string $content Post HTML content.
+	 * @return string
+	 */
+	private static function strip_scripts_from_content( $content ) {
+		if ( empty( $content ) || ! is_string( $content ) ) {
+			return $content;
+		}
+
+		$content = preg_replace( '#<script\b[^>]*>.*?</script>#is', '', $content );
+		$content = preg_replace( '#<script\b[^>]*>#is', '', $content );
+		$content = preg_replace( '#</script>#is', '', $content );
+
+		$content = preg_replace( '#<style\b[^>]*>.*?</style>#is', '', $content );
+		$content = preg_replace( '#<style\b[^>]*>#is', '', $content );
+		$content = preg_replace( '#</style>#is', '', $content );
+
+		return $content;
 	}
 }
